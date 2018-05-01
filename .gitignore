@@ -1,0 +1,3 @@
+*.lic
+.DS_Store
+/**/mule-ee-*.tar.gz

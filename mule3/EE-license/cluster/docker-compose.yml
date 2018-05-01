@@ -1,0 +1,39 @@
+version: '2'
+services:
+  mule01:
+    container_name: mule01
+    build:
+      context: .
+      args:
+        cluster_conf: mule01.properties
+    ports:
+      - "8081:8081"
+    volumes:
+      - ~/mule/cluster/mule01/apps:/opt/mule/apps
+      - ~/mule/cluster/mule01/logs:/opt/mule/logs
+    networks:
+      - cluster-net
+    environment:
+      - NODE_ID=1
+      - MULE_ENV=dev
+      - http.port=8081
+  mule02:
+    container_name: mule02
+    build:
+      context: .
+      args:
+        cluster_conf: mule02.properties
+    ports:
+      - "9081:8081"
+    volumes:
+      - ~/mule/cluster/mule02/apps:/opt/mule/apps
+      - ~/mule/cluster/mule02/logs:/opt/mule/logs
+    networks:
+      - cluster-net
+    environment:
+      - NODE_ID=2
+      - MULE_ENV=dev
+      - http.port=8081
+networks:
+  cluster-net:
+    driver: bridge
