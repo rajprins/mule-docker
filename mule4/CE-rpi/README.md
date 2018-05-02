@@ -61,27 +61,3 @@ Example:
 $ docker run -d --name="mule01" -p 8081:8081 -v ~/mule/mule01/apps:/opt/mule/apps -v ~/mule/mule01/logs:/opt/mule/logs mule4-ce-rpi
 $ docker run -d --name="mule02" -p 9081:8081 -v ~/mule/mule02/apps:/opt/mule/apps -v ~/mule/mule02/logs:/opt/mule/logs mule4-ce-rpi
 ```
-
-
-## Setting up a cluster
-It is possible to set up a cluster with 2 nodes using Docker Compose:
-* Clone [this](https://github.com/rajprins/mule-docker) GitHub repository:  
-`$ git clone https://github.com/rajprins/mule-docker.git`
-* From the location where you cloned the GitHub repo files, navigate to folder `mule4/EE-trial/cluster`
-* To launch the cluster and see logs in console, run:  
-`$ docker-compose up`
-* Or, to launch the cluster in detached mode, run:  
-`$ docker-compose up -d`
-
-
-This will launch two containers, both with a Mule EE runtime, configured to run in a multicast-enabled cluster.
-* Service `mule01`:
-  * bind `mule01:8081` to `localhost:8081`
-  * mount `/opt/mule/apps` volume to `~/mule/cluster/mule01/apps`
-  * mount `/opt/mule/logs` volume to `~/mule/cluster/mule01/logs`
-* Service `mule02`:
-  * bind `mule02:8081` to `localhost:9081`
-  * mount `/opt/mule/apps` volume to `~/mule/cluster/mule02/apps`
-  * mount `/opt/mule/logs` volume to `~/mule/cluster/mule02/logs`
-
-Edit `docker-compose.yml` to fit your preferred configuration

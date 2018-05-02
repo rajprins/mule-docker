@@ -1,5 +1,5 @@
 
-# Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule)  EE runtime engine
+# Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule) EE runtime engine
 
 ##### Note: This image uses the 30-day trial version of the Mule runtime.
 
@@ -40,7 +40,7 @@ $ docker run -d --name="mule4-trial" -p 8081:8081 -v ~/mule/apps:/opt/mule/apps 
 
 
 ## Deploying applications
-The simplest way of deploying Mule applications is copying a deployable archive (.zip file, created with Anypoint Studio or Maven) to the mapped ~/mule/apps folder.
+The simplest way of deploying Mule applications is copying a deployable archive (.jar file, created with Anypoint Studio or Maven) to the mapped ~/mule/apps folder.
 
 Alternatively, you can install the Mule Agent and register your Mule runtime with the Anypoint Runtime Manager. Details can be found [here](https://docs.mulesoft.com/runtime-manager/managing-servers#add-a-server). Now you can use the Anypoint Runtime Manager to deploy and monitor Mule applications.
 
