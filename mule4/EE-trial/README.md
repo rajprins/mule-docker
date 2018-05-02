@@ -7,17 +7,17 @@
 ### Usage
 Basic example of starting a container:
 ```
-$ docker run rprins/mule4-ee
+$ docker run rprins/mule4-trial
 ```
 
 Example of starting the container using HTTP port 8081 mapping and locally mounted data volume:  
 ```
-$ docker run -t -i --name="mule4-ee" -p 8081:8081 -v ~/mule/apps:/opt/mule/apps -v ~/mule/logs:/opt/mule/logs rprins/mule4-ee
+$ docker run -t -i --name="mule4-trial" -p 8081:8081 -v ~/mule/apps:/opt/mule/apps -v ~/mule/logs:/opt/mule/logs rprins/mule4-trial
 ```
 
 Or, if you wish to start the container in detached mode, use the following command:   
 ```
-$ docker run -d --name="mule4-ee" -p 8081:8081 -v ~/mule/apps:/opt/mule/apps -v ~/mule/logs:/opt/mule/logs rprins/mule4-ee
+$ docker run -d --name="mule4-trial" -p 8081:8081 -v ~/mule/apps:/opt/mule/apps -v ~/mule/logs:/opt/mule/logs rprins/mule4-trial
 ```
 
 
@@ -61,8 +61,8 @@ It is recommended to run the containers in detached mode (using the -d option).
 Example:
 
 ```
-$ docker run -d --name="mule01" -p 8081:8081 -v ~/mule/mule01/apps:/opt/mule/apps -v ~/mule/mule01/logs:/opt/mule/logs mule4-ee
-$ docker run -d --name="mule02" -p 9081:8081 -v ~/mule/mule02/apps:/opt/mule/apps -v ~/mule/mule02/logs:/opt/mule/logs mule4-ee
+$ docker run -d --name="mule01" -p 8081:8081 -v ~/mule/mule01/apps:/opt/mule/apps -v ~/mule/mule01/logs:/opt/mule/logs mule4-trial
+$ docker run -d --name="mule02" -p 9081:8081 -v ~/mule/mule02/apps:/opt/mule/apps -v ~/mule/mule02/logs:/opt/mule/logs mule4-trial
 ```
 
 

@@ -1,5 +1,5 @@
 
-# Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule)  EE runtime engine
+# Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule) EE runtime engine
 
 ### Usage
 Basic example of starting a container:

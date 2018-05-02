@@ -3,7 +3,6 @@
 
 ##### Note: This image uses the 30-day trial version of the Mule runtime.
 
-
 ### Usage
 Basic example of starting a container:
 ```
@@ -25,6 +24,7 @@ $ docker run -d --name="mule3-trial" -p 8081:8081 -v ~/mule/apps:/opt/mule/apps 
 | Location          | Description                            | Local folder mapping |
 |------------------ |----------------------------------------|----------------------|
 |/opt/mule/apps     | Mule Application deployment directory  | ~/mule/apps          |
+|/opt/mule/domains  | Mule Domains deployment directory      | ~/mule/domains       |
 |/opt/mule/logs     | Logs directory                         | ~/mule/logs          |
 
 

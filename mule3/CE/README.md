@@ -1,8 +1,6 @@
-
 # Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule) CE runtime engine
 
 ##### Note: This image uses the Community Edtion of the Mule runtime.
-
 
 ### Usage
 Basic example of starting a container:
