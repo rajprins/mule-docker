@@ -2,10 +2,8 @@ FROM        resin/rpi-raspbian:stretch
 MAINTAINER  Roy Prins <rajprins@gmail.com>
 
 # Define environment variables
-ARG         RUNTIME_VERSION=4.1.1
+ARG         RUNTIME_VERSION
 ARG         WRAPPER_VERSION=3.5.34
-ENV         WRAPPER_VERSION $WRAPPER_VERSION
-ENV         RUNTIME_VERSION $RUNTIME_VERSION
 ENV         MULE_HOME /opt/mule
 ENV         JAVA_HOME /usr/lib/jvm/java-8-oracle
 
