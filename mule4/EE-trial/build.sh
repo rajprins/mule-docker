@@ -21,7 +21,7 @@ fi
 
 #----- Set runtime version
 if [[ -z $2 ]] ; then
-   RUNTIME_VERSION=4.1.3
+   RUNTIME_VERSION=4.1.4
 else
    RUNTIME_VERSION=$2
 fi
