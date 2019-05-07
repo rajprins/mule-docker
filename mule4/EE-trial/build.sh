@@ -6,7 +6,7 @@ echo
 tput rev
 echo "┌──────────────────────────────────────────────────────────────────────────┐"
 echo "│ (\_/)     M U L E    D O C K E R    I M A G E    B U I L D E R           │"
-echo "│ /   \                                                                    |"
+echo "│ /   \                                                                    │"
 echo "└──────────────────────────────────────────────────────────────────────────┘"
 tput sgr0
 
@@ -21,7 +21,7 @@ fi
 
 #----- Set runtime version
 if [[ -z $2 ]] ; then
-   RUNTIME_VERSION=4.1.5
+   RUNTIME_VERSION=4.2.0
 else
    RUNTIME_VERSION=$2
 fi
