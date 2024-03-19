@@ -1,6 +1,6 @@
 # Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule) EE runtime engine with license
 
-##### Note: A valid Mule EE license file (mule-ee-license.lic) is required. Do not attempt to start the container without providing a license file. Before building the image, Put your license file (mule-ee-license.lic) in the resources folder (see Step 2).
+##### Note: A valid Mule EE license file (license.lic) is required. Do not attempt to start the container without providing a license file. Before building the image, Put your license file (license.lic) in the resources folder (see Step 2).
 
 ## Getting started
 ###### Step 1: Obtain Docker image files
