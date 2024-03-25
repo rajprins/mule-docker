@@ -21,6 +21,10 @@ RUN         wget https://s3.amazonaws.com/new-mule-artifacts/mule-ee-distributio
 # Define mount points
 VOLUME      ["/opt/mule/logs", "/opt/mule/apps", "/opt/mule/domains"]
 
+# Copy and install License file
+COPY        ./resources/license.lic /opt/mule/conf/
+RUN         /opt/mule/bin/mule -installLicense /opt/mule/conf/license.lic
+
 # Expose the necessary port ranges as required by the Mule Apps
 # HTTP listener default ports, remote debugger, JMX, MMC agent, AMC agent
 EXPOSE      8081-8082 5000 1098 7777 9997

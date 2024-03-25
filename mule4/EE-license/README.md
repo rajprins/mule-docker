@@ -10,7 +10,7 @@
 
 ###### Step 2: Provide a license file
 * A valid Mule Enterprise Edition license file is required. Do not attempt to start the container without providing a license file
-* Put your license file (mule4-ee-license.lic) in the resources folder
+* Put your license file (license.lic) in the resources folder
 
 ###### Step 3: Build a Docker base image
 * Navigate to the folder that contains the cloned Docker file

@@ -31,7 +31,7 @@ if [[ -z $MODE ]] ; then
    MODE="t"
 fi
 
-MULE_BASE="$HOME/mule/${NAME}"
+MULE_BASE="$HOME/mule/$NAME"
 
 if [ $MODE = "T" ] || [ $MODE = "t" ] ; then
    echo "Starting container ${NAME} with terminal output enabled. Data volume mounted on $MULE_BASE."

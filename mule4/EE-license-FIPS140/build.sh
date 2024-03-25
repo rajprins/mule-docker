@@ -2,6 +2,7 @@
 
 
 #----- Intro
+clear
 echo
 tput rev
 echo "┌──────────────────────────────────────────────────────────────────────────┐"
@@ -11,20 +12,22 @@ echo "└───────────────────────�
 tput sgr0
 
 
-#----- Set image name
-if [[ -z $1 ]] ; then
-   NAME="mule4-ee"
-else
-   NAME=$1
-fi
+NAME="mule4-ee"
+RUNTIME_VERSION="4.4.0"
 
-
-#----- Set runtime version
-if [[ -z $2 ]] ; then
-   RUNTIME_VERSION=4.4.0
-else
-   RUNTIME_VERSION=$2
-fi
+#----- Process command line argument
+while getopts ":n:v:" opt; do
+  case ${opt} in
+    n)
+      NAME="${OPTARG}"
+      echo "> Setting container name to $OPTARG"
+      ;;
+    v)
+      RUNTIME_VERSION="${OPTARG}"
+      echo "> Using Mule version $OPTARG"
+      ;;
+  esac
+done
 
 
 #----- Set environment variable(s)
@@ -33,7 +36,7 @@ MULE_BASE="$HOME/mule/${NAME}"
 
 #----- Build Docker image
 echo
-echo "Building Docker image with label '${NAME}'"
+echo "Building Mule docker image with label '${NAME}' and runtime version ${RUNTIME_VERSION}"
 docker build --build-arg RUNTIME_VERSION=${RUNTIME_VERSION} --tag ${NAME} .
 
 
@@ -49,7 +52,7 @@ fi
 #----- Happy scenario
 echo
 echo "Done. You may now run the Docker image using this command:"
-echo "$ docker run -name <CONTAINER_NAME> ${NAME}"
+echo "$ docker run -name ${NAME}"
 echo
 echo "Example of starting the container using HTTP port 8081 mapping and locally mounted data volume:"
 echo "$ docker run -ti --name ${NAME} -p 8081:8081 -v $MULE_BASE/apps:/opt/mule/apps -v $MULE_BASE/logs:/opt/mule/logs ${NAME}"

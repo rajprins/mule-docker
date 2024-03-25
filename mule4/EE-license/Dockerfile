@@ -3,19 +3,21 @@ MAINTAINER   Roy Prins <rajprins@gmail.com>
 
 # Define environment variables
 ARG         RUNTIME_VERSION
+ARG         USERNAME
+ARG         PASSWORD
 ENV         MULE_HOME /opt/mule
 
 # Install necessary system tools
 RUN         apt-get update && \
-            apt-get install -y wget unzip vim && \
+            apt-get install -y curl unzip vim && \
             rm -rf /var/lib/apt/lists/* && \
             apt-get autoclean
 
 # Download and install Mule runtime
 WORKDIR     /opt
-RUN         wget https://s3.amazonaws.com/new-mule-artifacts/mule-ee-distribution-standalone-${RUNTIME_VERSION}.zip && \
-            unzip mule-ee-distribution-standalone-${RUNTIME_VERSION}.zip && \
-            rm mule-ee-distribution-standalone-${RUNTIME_VERSION}.zip && \
+RUN         curl -u ${USERNAME}:${PASSWORD} "https://repository-master.mulesoft.org/nexus/content/repositories/ci-releases/com/mulesoft/mule/distributions/mule-ee-distribution-standalone/${RUNTIME_VERSION}/mule-ee-distribution-standalone-${RUNTIME_VERSION}.zip" -o runtime.zip && \
+            unzip runtime.zip && \
+            rm runtime.zip && \
             ln -s /opt/mule-enterprise-standalone-${RUNTIME_VERSION} /opt/mule
 
 # Define mount points
