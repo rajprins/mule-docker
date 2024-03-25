@@ -60,7 +60,7 @@ fi
 #----- Happy scenario
 echo
 echo "Done. You may now run the Docker image using this command:"
-echo "$ docker run -name ${NAME}"
+echo "$ docker run --name ${NAME}"
 echo
 echo "Example of starting the container using HTTP port 8081 mapping and locally mounted data volume:"
 echo "$ docker run -ti --name ${NAME} -p 8081:8081 -v $MULE_BASE/apps:/opt/mule/apps -v $MULE_BASE/logs:/opt/mule/logs ${NAME}"

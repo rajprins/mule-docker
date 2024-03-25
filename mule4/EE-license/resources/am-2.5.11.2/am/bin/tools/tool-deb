@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# Import variables
+
+MACHINE_TYPE=`uname -m`
+if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+    DAEMON=${AM_HOME}/filebeat/linux/64/filebeat
+else
+    # Linux 32
+    DAEMON=${AM_HOME}/filebeat/linux/32/filebeat
+fi
+
+# Exit if the package is not installed
+[ -x "$DAEMON" ] || exit 0
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+#
+# Function that calls runs the service in foreground
+# to test its configuration.
+#
+do_test()
+{
+        $USER_WRAPPER $USER_WRAPPER_ARGS "$DAEMON $DAEMON_ARGS $TEST_ARGS"
+}
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+    # Return
+    #   0 if daemon has been started
+    #   1 if daemon was already running
+    #   2 if daemon could not be started
+    start-stop-daemon --start \
+                --pidfile $PIDFILE  \
+        --exec $WRAPPER -- $WRAPPER_ARGS -- $DAEMON $DAEMON_ARGS \
+        || return 2
+}
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+    # Return
+    #   0 if daemon has been stopped
+    #   1 if daemon was already stopped
+    #   2 if daemon could not be stopped
+    #   other if a failure occurred
+    start-stop-daemon --stop --quiet --retry=TERM/5/KILL/5 --pidfile $PIDFILE --exec $WRAPPER
+    RETVAL="$?"
+    [ "$RETVAL" = 2 ] && return 2
+    # Wait for children to finish too if this is a daemon that forks
+    # and if the daemon is only ever run from this initscript.
+    # If the above conditions are not satisfied then add some other code
+    # that waits for the process to drop all resources that could be
+    # needed by services started subsequently.  A last resort is to
+    # sleep for some time.
+    start-stop-daemon --stop --quiet --oknodo --retry=0/30/KILL/5 --exec $DAEMON
+    [ "$?" = 2 ] && return 2
+    # Many daemons don't delete their pidfiles when they exit.
+    rm -f $PIDFILE
+    return "$RETVAL"
+}
+#
+# Function that sends a SIGHUP to the daemon/service
+#
+do_restart() {
+    do_stop
+    do_start
+}
+#
+# Function that checks the running status of the daemon/service
+#
+check_status() {
+    start-stop-daemon --status --pidfile $PIDFILE
+}
+#
+# Function that checks the connectivity to DIAS ingestor
+#
+do_check() {
+    $DAEMON $CHECK_ARGS
+}

@@ -1,0 +1,13 @@
+- type: log
+
+  # Change to true to enable this prospector configuration.
+  enabled: true
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - ${log.file}
+
+  fields:
+    log_type: metric
+    org_id: ${organization.id}
+    master_org_id: ${master.organization.id}

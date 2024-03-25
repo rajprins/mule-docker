@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# ********* Starting configuration *********
+while getopts m:h  option
+do
+case "${option}"
+in
+m) HOME_DIR=${OPTARG};;
+h)
+    echo "DESCRIPTION: Setup Anypoint Monitoring FileBeat"
+    echo "Usage: $0 [options]"
+    echo " "
+    echo "options:"
+    echo "-h,       show help"
+    echo "-m,       set home directory - defaults to MULE_HOME"
+    echo " "
+    exit 0
+    ;;
+esac
+done
+
+if [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]]; then
+    if [[ -d "$MULE_HOME" ]]; then
+        HOME_DIR=$MULE_HOME
+    else
+        cd $(dirname $0)
+        cd ../..
+        HOME_DIR=`pwd`
+    fi
+fi
+
+echo "MULE_HOME is set to ${HOME_DIR}"
+
+AM_HOME=${HOME_DIR}/am
+source ${AM_HOME}/bin/tools/serviceHelper
+source ${AM_HOME}/bin/tools/message
+
+enableService() {
+    ${AM_HOME}/bin/am-service enable
+}
+
+restartService() {
+    ${AM_HOME}/bin/am-service restart_with_recovery
+    echo $RESTART_SERVICE_HELP
+}
+
+restartStandalone() {
+    ${AM_HOME}/bin/am restart_with_recovery -m "$HOME_DIR"
+    echo $RESTART_HELP
+}
+
+attempts=30
+echo $AM_CONFIG_WAIT
+while(true)
+do
+ attempts=$((attempts-1))
+ if (( attempts > 0 )); then
+     if [[ -e "${AM_HOME}/config/filebeat.yml" ]]; then
+        echo $AM_CONFIG_READY
+        ${AM_HOME}/bin/am check
+        if isServiceInstalled; then
+            enableService
+            restartService
+        else
+            restartStandalone
+        fi
+        break;
+     fi
+     sleep 10
+  else
+    echo $AM_CONFIG_NOT_FOUND
+    break;
+ fi
+done
+
+exit 0

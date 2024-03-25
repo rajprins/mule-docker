@@ -1,0 +1,17 @@
+[Unit]
+Description=Anypoint Monitoring Filebeat Service
+Documentation=https://github.com/mulesoft/dias-agent-installer
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+PIDFile=/etc/filebeat/filebeat.pid
+ExecStart=/bin/bash $muleHome$/am/bin/am start -m $muleHome$ -s
+ExecReload=/bin/bash $muleHome$/am/bin/am reload -m $muleHome$ -s
+ExecStop=/bin/bash $muleHome$/am/bin/am stop -m $muleHome$ -s
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

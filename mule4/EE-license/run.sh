@@ -31,14 +31,23 @@ if [[ -z $MODE ]] ; then
    MODE="t"
 fi
 
+MULE_HOME="/opt/mule"
 MULE_BASE="$HOME/mule/$NAME"
 
 if [ $MODE = "T" ] || [ $MODE = "t" ] ; then
-   echo "Starting container ${NAME} with terminal output enabled. Data volume mounted on $MULE_BASE."
-   docker run -ti --name ${NAME} -p $PORT:8081 -v $MULE_BASE/apps:/opt/mule/apps -v $MULE_BASE/domains:/opt/mule/domains -v $MULE_BASE/logs:/opt/mule/logs ${NAME}
+   echo "Starting container ${NAME} with terminal output enabled. Data volumes mounted on ${MULE_BASE}."
+   docker run -ti --name ${NAME} \
+      -p ${PORT}:8081 \
+      -v ${MULE_BASE}/apps:${MULE_HOME}/apps \
+      -v ${MULE_BASE}/logs:${MULE_HOME}/logs \
+      ${NAME}
 elif [ $MODE = "D" ] || [ $MODE = "d" ] ; then
-   echo "Starting container ${NAME} in detached mode. Data volume mounted on $HOME/mule/${NAME}."
-   docker run -d --name ${NAME} -p $PORT:8081 -v $MULE_BASE/apps:/opt/mule/apps -v $MULE_BASE/domains:/opt/mule/domains -v $MULE_BASE/logs:/opt/mule/logs ${NAME}
+   echo "Starting container ${NAME} in detached mode. Data volumes mounted on ${MULE_BASE}."
+   docker run -d --name ${NAME} \
+      -p ${PORT}:8081 \
+      -v ${MULE_BASE}/apps:${MULE_HOME}/apps \
+      -v ${MULE_BASE}/logs:${MULE_HOME}/logs \
+      ${NAME}
 else
    echo "Wrong input: $MODE. Expected 'T' or 'D'. Aborting..."
    exit 1

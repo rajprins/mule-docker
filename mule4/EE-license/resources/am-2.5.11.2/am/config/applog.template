@@ -1,0 +1,23 @@
+- type: log
+
+  # Change to true to enable this prospector configuration.
+  enabled: true
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - ${log.file}
+
+  fields:
+    log_type: 'log'
+    master_org_id: ${master.organization.id}
+    org_id: ${organization.id}
+    env_id: ${environment.id}
+    worker_id: ${cluster.id}
+    app_id: ${app.id}
+    tz: ${time.zone}
+    runtime: hybrid
+
+  # Split log lines by date or log level
+  multiline.pattern: '^(\d\d\d\d)|(INFO)|(WARN)|(DEBUG)|(ERROR)|(TRACE)'
+  multiline.negate: true
+  multiline.match: after

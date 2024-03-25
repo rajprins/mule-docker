@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+    $DAEMON $DAEMON_ARGS > /dev/null 2>&1 &
+    echo $! > $PIDFILE
+
+}
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+    if [[ -f "$PIDFILE" ]]; then
+        PID=$(cat $PIDFILE)
+        kill -9 $PID > /dev/null 2>&1
+    fi
+}
+#
+# Function that sends a SIGHUP to the daemon/service
+#
+do_restart() {
+    do_stop
+    do_start
+}
+#
+# Function that checks the running status of the daemon/service
+#
+check_status() {
+    if [[ -f "$PIDFILE" ]]; then
+        pgrep -F $PIDFILE
+    else
+        return 1
+    fi
+}
+#
+# Function that checks the connectivity to DIAS ingestor
+#
+do_check() {
+    $DAEMON $CHECK_ARGS
+}

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+[ -f /etc/sysconfig/filebeat ] && . /etc/sysconfig/filebeat
+RETVAL=0
+
+MACHINE_TYPE=`uname -m`
+if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+    DAEMON=${AM_HOME}/filebeat/rpm/64/filebeat
+else
+    # Linux 32
+    DAEMON=${AM_HOME}/filebeat/rpm/32/filebeat
+fi
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Determine if we can use the -p option to daemon, killproc, and status.
+# RHEL < 5 can't.
+if status | grep -q -- '-p' 2>/dev/null; then
+    daemonopts="--pidfile $PIDFILE"
+    pidopts="-p $PIDFILE"
+fi
+
+do_start() {
+    daemon $daemonopts $WRAPPER $WRAPPER_ARGS -- $DAEMON $DAEMON_ARGS
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+do_stop() {
+    killproc $pidopts $WRAPPER
+    RETVAL=$?
+    echo
+    [ $RETVAL = 0 ] && rm -f ${PIDFILE}
+}
+
+do_restart() {
+    stop
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
+    start
+}
+
+check_status() {
+    if [[ -f "$PIDFILE" ]]; then
+        pgrep -F $PIDFILE
+    else
+        return 1
+    fi
+}
+
+do_check() {
+    $DAEMON $CHECK_ARGS
+}

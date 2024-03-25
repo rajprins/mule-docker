@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+isServiceInstalled()
+{
+    if [[ -e "/lib/systemd/system/am-filebeat.service" ]]; then
+        # true
+        return 0
+    else
+        # false
+        return 1
+    fi
+}

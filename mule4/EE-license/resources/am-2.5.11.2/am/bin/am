@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+IS_SERVICE=false
+ACTION=$1
+shift $((OPTIND))
+while getopts sm:  option
+do
+case "${option}"
+in
+m) HOME_DIR=${OPTARG};;
+s) IS_SERVICE=true;;
+esac
+done
+
+if [[ ! -d "$HOME_DIR" ]]; then
+	if [[ -d "$MULE_HOME" ]]; then
+		HOME_DIR=${MULE_HOME}
+	else
+	    cd $(dirname $0)
+        cd ../..
+        HOME_DIR=`pwd`
+	fi
+fi
+
+# Import variables
+PATH=/usr/bin:/sbin:/bin:/usr/sbin
+export PATH
+AM_HOME=${HOME_DIR}/am
+source ${AM_HOME}/bin/tools/serviceHelper
+source ${AM_HOME}/bin/tools/message
+
+
+if [[ "$IS_SERVICE" = true ]]; then
+	FILEBEAT_DATA=/var/lib/filebeat
+	FILEBEAT_LOGS=/var/log/filebeat
+	PIDFILE_BASE_DIR=/etc/filebeat
+else
+	FILEBEAT_DATA=${HOME_DIR}/.mule/.am/filebeat/data
+	FILEBEAT_LOGS=${AM_HOME}/filebeat/logs
+	PIDFILE_BASE_DIR=${AM_HOME}
+fi
+
+DAEMON_ARGS="-strict.perms=false -c ${AM_HOME}/config/filebeat.yml -path.home ${AM_HOME} -path.data ${FILEBEAT_DATA} -path.logs ${FILEBEAT_LOGS}"
+CHECK_ARGS="test output -c ${AM_HOME}/config/filebeat.yml -path.home ${AM_HOME} -path.data ${FILEBEAT_DATA} -strict.perms=false"
+TEST_ARGS="-e test config"
+PIDFILE=${PIDFILE_BASE_DIR}/filebeat.pid
+WRAPPER_ARGS="-r / -n -p $PIDFILE"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # OSX
+    chmod +x ${AM_HOME}/filebeat/osx/filebeat
+    DAEMON=${AM_HOME}/filebeat/osx/filebeat
+    source ${AM_HOME}/bin/tools/tool-osx
+else
+    if which dpkg > /dev/null 2> /dev/null
+    then
+        WRAPPER="${AM_HOME}/filebeat/bin/linux/filebeat-god"
+        source ${AM_HOME}/bin/tools/tool-deb
+    else
+        WRAPPER="${AM_HOME}/filebeat/bin/rpm/filebeat-god"
+        source ${AM_HOME}/bin/tools/tool-rpm
+    fi
+fi
+
+# Start function
+start() {
+   do_start
+}
+
+# Stop function
+stop() {
+    do_stop
+}
+
+# Restart function - Stops and starts the service
+restart() {
+   do_restart
+}
+
+# Restart with recovery - If the service fails to start, clear filebeat registry and retry
+restart_with_recovery() {
+   do_restart
+   sleep 5
+   check_status
+   if [[ $? -ne 0 ]]; then
+       if [[ -f ${FILEBEAT_DATA}/registry.bak ]]; then
+           echo $RESTORING_FILEBEAT_REGISTRY
+           mv -f ${FILEBEAT_DATA}/registry.bak ${FILEBEAT_DATA}/registry
+           do_restart
+           sleep 5
+           check_status
+           if [[ $? -ne 0 ]]; then
+               echo $CLEARING_FILEBEAT_REGISTRY
+               rm -f ${FILEBEAT_DATA}/registry
+               do_restart
+           fi
+       else
+           echo $CLEARING_FILEBEAT_REGISTRY
+           rm -f ${FILEBEAT_DATA}/registry
+           do_restart
+       fi
+   fi
+}
+
+# Check function - Checks connectivity to DIAS ingestor
+check() {
+    do_check
+}
+
+case "$ACTION" in
+    start)
+        echo $STARTING_FILEBEAT
+        if isServiceInstalled; then
+            if [[ "$IS_SERVICE" = true ]]; then
+                start
+                echo $FILEBEAT_STARTED
+            else
+                echo ${AM_SERVICE_INSTALLED}
+            fi
+        else
+            start
+            echo $FILEBEAT_STARTED
+        fi
+    ;;
+    stop)
+        echo $STOPPING_FILEBEAT
+        stop
+        echo "Stopped filebeat"
+    ;;
+    restart)
+        echo $RESTARTING_FILEBEAT
+        if isServiceInstalled; then
+            if [[ "$IS_SERVICE" = true ]]; then
+                restart
+                echo $FILEBEAT_STARTED
+            else
+                echo ${AM_SERVICE_INSTALLED}
+            fi
+        else
+            restart
+        fi
+    ;;
+    restart_with_recovery)
+        restart_with_recovery
+    ;;
+    check)
+        echo $CHECKING_CONNECTIVITY
+        check
+    ;;
+    *)
+        echo "Usage: $0 [actions] [options]"
+        echo " "
+        echo "[actions]:"
+        echo "start,    Start filebeat"
+        echo "stop,     Stop filebeat"
+        echo "restart,  Restart filebeat"
+        echo "check,    Check connectivity"
+        echo " "
+        echo "[options]:"
+        echo "-m,       Override Home directory"
+        echo " "
+        echo "DESCRIPTION: Run Anypoint Monitoring FileBeat"
+        exit 0
+        ;;
+esac
+
+exit 0

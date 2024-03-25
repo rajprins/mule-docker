@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+AM_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." >/dev/null 2>&1 && pwd )"
+source ${AM_HOME}/bin/tools/message
+FILEBEAT_DATA=/var/lib/filebeat
+PIDFILE_BASE_DIR=/etc/filebeat
+PIDFILE=${PIDFILE_BASE_DIR}/filebeat.pid
+
+if which dpkg > /dev/null 2> /dev/null
+then
+    source ${AM_HOME}/bin/tools/tool-deb
+else
+    source ${AM_HOME}/bin/tools/tool-rpm
+fi
+
+# Start and enable the service on boot
+start() {
+    sudo systemctl enable am-filebeat.service > /dev/null 2>&1
+    sudo systemctl start am-filebeat.service > /dev/null 2>&1
+    sudo systemctl enable am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl start am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl enable am-filebeat-watcher.path > /dev/null 2>&1
+    sudo systemctl start am-filebeat-watcher.path > /dev/null 2>&1
+}
+
+# Stop and disable the service on boot
+stop() {
+    sudo systemctl stop am-filebeat.service > /dev/null 2>&1
+    sudo systemctl stop am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl stop am-filebeat-watcher.path > /dev/null 2>&1
+}
+
+# Restart function - Stops and starts the service
+restart() {
+    sudo systemctl restart am-filebeat.service > /dev/null 2>&1
+    sudo systemctl restart am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl restart am-filebeat-watcher.path > /dev/null 2>&1
+}
+
+# Restart with recovery - If the service fails to start, clear filebeat registry and retry
+restart_with_recovery() {
+    sudo systemctl restart am-filebeat.service > /dev/null 2>&1
+    sudo systemctl restart am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl restart am-filebeat-watcher.path > /dev/null 2>&1
+    sleep 5
+    check_status
+    if [[ $? -ne 0 ]]; then
+        if [[ -f ${FILEBEAT_DATA}/registry.bak ]]; then
+            echo $RESTORING_FILEBEAT_REGISTRY
+            mv -f ${FILEBEAT_DATA}/registry.bak ${FILEBEAT_DATA}/registry
+            restart
+            sleep 5
+            check_status
+            if [[ $? -ne 0 ]]; then
+                echo $CLEARING_FILEBEAT_REGISTRY
+                rm -f ${FILEBEAT_DATA}/registry
+                restart
+            fi
+        else
+            echo $CLEARING_FILEBEAT_REGISTRY
+            rm -f ${FILEBEAT_DATA}/registry
+            restart
+        fi
+    fi
+}
+
+enable() {
+    sudo systemctl enable am-filebeat.service > /dev/null 2>&1
+    sudo systemctl enable am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl enable am-filebeat-watcher.path > /dev/null 2>&1
+}
+
+disable() {
+    sudo systemctl disable am-filebeat.service > /dev/null 2>&1
+    sudo systemctl disable am-filebeat-watcher.service > /dev/null 2>&1
+    sudo systemctl disable am-filebeat-watcher.path > /dev/null 2>&1
+}
+
+case "$1" in
+    start)
+        start
+    ;;
+    stop)
+        stop
+    ;;
+    restart)
+        restart
+    ;;
+    enable)
+        enable
+    ;;
+    disable)
+        disable
+    ;;
+    restart_with_recovery)
+        restart_with_recovery
+    ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit 0

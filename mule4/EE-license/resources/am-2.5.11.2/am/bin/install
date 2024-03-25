@@ -1,0 +1,112 @@
+#!/usr/bin/env bash
+# ********* Starting configuration *********
+while getopts ":m:p:s:xh"  option; do
+case "${option}" in
+m) HOME_DIR=${OPTARG};;
+p) PROXY_URL=${OPTARG};;
+s) SERVER_ID=${OPTARG};;
+x) SKIP_SERVICE="true";;
+h)
+    echo "DESCRIPTION: Install Anypoint Monitoring FileBeat"
+    echo "Usage: $0 [options]"
+    echo " "
+    echo "options:"
+    echo "-h,       show help"
+    echo "-m,       set home directory - defaults to MULE_HOME"
+    echo "-p,       SOCKS5 proxy server URL"
+    echo "          Example: -p socks5://user:password@socks5-server:1080"
+    echo " "
+    exit 0
+    ;;
+esac
+done
+shift "$((OPTIND-1))"
+
+if [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]]; then
+    if [[ -d "$MULE_HOME" ]]; then
+        HOME_DIR=$MULE_HOME
+    else
+        cd $(dirname $0)
+        cd ../..
+        HOME_DIR=`pwd`
+    fi
+fi
+
+echo "MULE_HOME is set to ${HOME_DIR}"
+
+AM_HOME=${HOME_DIR}/am
+source ${AM_HOME}/bin/tools/pid-file
+
+installServiceAgent() {
+    # Configuring filebeat as a service
+    SERVICE_UNIT_FILE="/lib/systemd/system/am-filebeat.service"
+    WATCHER_SERVICE_UNIT_FILE="/lib/systemd/system/am-filebeat-watcher.service"
+    WATCHER_PATH_UNIT_FILE="/lib/systemd/system/am-filebeat-watcher.path"
+    [[ -f /bin/systemctl ]] && SYSTEMCTL_EXEC=/bin/systemctl || SYSTEMCTL_EXEC=/usr/bin/systemctl
+    if [[ ! -d "$SERVICE_UNIT_FILE" ]]; then
+        echo "Copying filebeat service configuration"
+        sudo cp ${AM_HOME}/config/am-filebeat.template.service $SERVICE_UNIT_FILE
+        sudo sed -i '' -e "s/\$muleHome\\$/${HOME_DIR//\//\\/}/g" $SERVICE_UNIT_FILE > /dev/null 2>&1
+    fi
+    if [[ ! -d "$WATCHER_SERVICE_UNIT_FILE" ]]; then
+        echo "Copying filebeat watcher service configuration"
+        sudo cp ${AM_HOME}/config/am-filebeat-watcher.template.service $WATCHER_SERVICE_UNIT_FILE
+        sudo sed -i '' -e "s/\$systemctlExec\\$/${SYSTEMCTL_EXEC//\//\\/}/g" $WATCHER_SERVICE_UNIT_FILE > /dev/null 2>&1
+    fi
+    if [[ ! -d "$WATCHER_PATH_UNIT_FILE" ]]; then
+        echo "Copying filebeat watcher path configuration"
+        sudo cp ${AM_HOME}/config/am-filebeat-watcher.template.path $WATCHER_PATH_UNIT_FILE
+        sudo sed -i '' -e "s/\$muleHome\\$/${HOME_DIR//\//\\/}/g" $WATCHER_PATH_UNIT_FILE > /dev/null 2>&1
+    fi
+    # Create pid file to run as a service in sudo directory
+    createPidFile true /etc/filebeat
+    sudo systemctl daemon-reload
+}
+
+configureProxyUrl() {
+    PROXY_URL_FILE=${AM_HOME}/config/proxy.url
+    # Remove existing proxy url file
+    if [[ -f ${PROXY_URL_FILE} ]]; then
+        rm ${PROXY_URL_FILE}
+    fi
+    # Write proxy url file
+    if [[ -n "${PROXY_URL}" ]]; then
+        echo "${PROXY_URL}" > ${PROXY_URL_FILE}
+    fi
+}
+
+configureAgent() {
+    echo "Configuring agent..."
+    if (type -p java) || ([[ -n "$JAVA_HOME" ]] && [[ -x "$JAVA_HOME/bin/java" ]]); then
+        java -jar ${AM_HOME}/lib/agent-configurator.jar ${HOME_DIR}
+    else
+        echo "Error pushing configuration because java is not installed"
+    fi
+}
+
+rm ${AM_HOME}/config/filebeat.yml > /dev/null 2>&1
+if [[ -z "$SERVER_ID" ]]; then
+    rm ${AM_HOME}/config/server.id > /dev/null 2>&1
+else
+    touch ${AM_HOME}/config/server.id > /dev/null 2>&1
+    echo "$SERVER_ID" > "${AM_HOME}/config/server.id"
+fi
+
+# Create pid file in home
+createPidFile false ${AM_HOME}
+configureProxyUrl
+configureAgent
+
+if [[ -z "$SKIP_SERVICE" ]]; then
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        read -p "Do you want to use monitoring as a service? [y|N] " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            installServiceAgent
+        fi
+    fi
+else
+  echo "Monitoring is not used as a service"
+fi
+
+exit 0

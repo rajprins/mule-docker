@@ -1,0 +1,12 @@
+[Unit]
+Description=Anypoint Monitoring Filebeat Watcher Service
+Documentation=https://github.com/mulesoft/dias-agent-installer
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=$systemctlExec$ restart am-filebeat.service
+
+[Install]
+WantedBy=multi-user.target

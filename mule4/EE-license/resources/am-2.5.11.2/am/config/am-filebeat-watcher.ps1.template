@@ -1,0 +1,27 @@
+#!/usr/bin/pwsh
+
+$Md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
+$Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
+
+function Invoke-WatchFile($fileName) {
+    if([System.IO.File]::Exists($fileName)) {
+        $md5FileName = $fileName + '.md5'
+        if (![System.IO.File]::Exists($md5FileName)) {
+            $hash = [System.BitConverter]::ToString($Md5.ComputeHash([System.IO.File]::ReadAllBytes($fileName)))
+            Set-Content -Value $Utf8NoBomEncoding.GetBytes($hash) -Encoding Byte -Path $md5FileName
+        }
+        else {
+            $previousHash = Get-Content $md5FileName -Encoding utf8
+            $hash = [System.BitConverter]::ToString($Md5.ComputeHash([System.IO.File]::ReadAllBytes($fileName)))
+            if ($previousHash -ne $hash) {
+                Set-Content -Value $Utf8NoBomEncoding.GetBytes($hash) -Encoding Byte -Path $md5FileName
+                Restart-Service -Name am-filebeat
+            }
+        }
+    }
+}
+
+Invoke-WatchFile "$muleHome$\am\config\filebeat.yml"
+Invoke-WatchFile "$muleHome$\am\config\certs\mule-agent.key"
+Invoke-WatchFile "$muleHome$\am\config\certs\mule-agent-chain.crt"
+Invoke-WatchFile "$muleHome$\am\config\certs\registration-agent-ca.crt"

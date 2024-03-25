@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# ********* Starting configuration *********
+while getopts m:l:h  option
+do
+case "${option}"
+in
+m) HOME_DIR=${OPTARG};;
+h)
+    echo "DESCRIPTION: Install Anypoint Monitoring FileBeat"
+    echo "Usage: $0 [options]"
+    echo " "
+    echo "options:"
+    echo "-h,       show help"
+    echo "-m,       set home directory - defaults to MULE_HOME"
+    echo " "
+    exit 0
+    ;;
+esac
+done
+
+if [[ -z "$HOME_DIR" || ! -d "$HOME_DIR" ]]; then
+    if [[ -d "$MULE_HOME" ]]; then
+        HOME_DIR=$MULE_HOME
+    else
+        cd $(dirname $0)
+        cd ../..
+        HOME_DIR=`pwd`
+    fi
+fi
+
+echo "MULE_HOME is set to ${HOME_DIR}"
+
+AM_HOME=${HOME_DIR}/am
+source ${AM_HOME}/bin/tools/serviceHelper
+
+rm -f ${AM_HOME}/config/filebeat.yml
+rm -fr ${AM_HOME}/config/prospectors
+rm -fr ${AM_HOME}/config/certs
+rm -f ${AM_HOME}/config/proxy.url
+rm -f $HOME_DIR/server-plugins/mule-agent-plugin/lib/mule-agent-dias-*.jar 1> /dev/null 2>&1
+rm -f $HOME_DIR/server-plugins/mule-agent-plugin/lib/analytics-metrics-collector-*.jar 1> /dev/null 2>&1
+rm -f $HOME_DIR/server-plugins/mule-agent-plugin/lib/modules/mule-agent-dias-*.jar 1> /dev/null 2>&1
+rm -f $HOME_DIR/server-plugins/mule-agent-plugin/lib/modules/analytics-metrics-collector-*.jar 1> /dev/null 2>&1
+rm -f $HOME_DIR/plugins/mule-agent-plugin/lib/modules/mule-agent-dias-*.jar 1> /dev/null 2>&1
+rm -f $HOME_DIR/plugins/mule-agent-plugin/lib/modules/analytics-metrics-collector-*.jar 1> /dev/null 2>&1
+
+if isServiceInstalled; then
+   ${AM_HOME}/bin/am-service stop
+   ${AM_HOME}/bin/am-service disable
+   sudo rm -f "/lib/systemd/system/am-filebeat.service"
+   sudo rm -f "/lib/systemd/system/am-filebeat-watcher.service"
+   sudo rm -f "/lib/systemd/system/am-filebeat-watcher.path"
+   sudo systemctl daemon-reload
+else
+   ${AM_HOME}/bin/am stop
+fi
+exit 0

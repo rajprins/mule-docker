@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# $1 is service?
+# $2 filebeat pid base dir
+
+createPidFile()
+{
+   if [[ "$1" = true ]]; then
+      sudo mkdir -p "$2" && touch "$2"/filebeat.pid > /dev/null 2>&1
+   else
+   	   mkdir -p "$2" && touch "$2"/filebeat.pid  > /dev/null 2>&1
+   fi
+}

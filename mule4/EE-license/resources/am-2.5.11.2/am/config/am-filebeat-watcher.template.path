@@ -1,0 +1,8 @@
+[Path]
+PathChanged=$muleHome$/am/config/filebeat.yml
+PathChanged=$muleHome$/am/config/certs/mule-agent-chain.crt
+PathChanged=$muleHome$/am/config/certs/mule-agent.key
+PathChanged=$muleHome$/am/config/certs/registration-agent-ca.crt
+
+[Install]
+WantedBy=multi-user.target
