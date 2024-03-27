@@ -10,24 +10,20 @@ echo "│ (\_/)     M U L E    D O C K E R    I M A G E    B U I L D E R        
 echo "│ /   \                                                                    |"
 echo "└──────────────────────────────────────────────────────────────────────────┘"
 tput sgr0
+echo
 
 
-NAME="mule4-trial-rpi"
-RUNTIME_VERSION="4.4.0"
+#----- Image name
+read -p "> What name do you want to use for this container image (RETURN=mule4-trial-rpi) : " NAME
+if [[ -z $NAME ]] ; then
+  NAME="mule4-trial-rpi"  
+fi
 
-#----- Process command line argument
-while getopts ":n:v:" opt; do
-  case ${opt} in
-    n)
-      NAME="${OPTARG}"
-      echo "> Setting container name to $OPTARG"
-      ;;
-    v)
-      RUNTIME_VERSION="${OPTARG}"
-      echo "> Using Mule version $OPTARG"
-      ;;
-  esac
-done
+#----- Mule runtime version, currently 4.4.0
+read -p "> What runtime version do you want to use (RETURN=4.4.0) : " RUNTIME_VERSION
+if [[ -z $RUNTIME_VERSION ]] ; then
+  RUNTIME_VERSION="4.4.0"
+fi
 
 
 #----- Set environment variable(s)
@@ -36,8 +32,8 @@ MULE_BASE="$HOME/mule/${NAME}"
 
 #----- Build Docker image
 echo
-echo "Building Mule docker image with label '${NAME}' and runtime version ${RUNTIME_VERSION}"
-docker build --build-arg RUNTIME_VERSION=${RUNTIME_VERSION} --tag ${NAME} .
+echo "Building docker image with label '${NAME}' and Mule runtime version ${RUNTIME_VERSION}"
+docker buildx build --build-arg RUNTIME_VERSION=${RUNTIME_VERSION} --tag ${NAME} .
 
 
 #----- No sense in continuing after build failure
@@ -52,7 +48,7 @@ fi
 #----- Happy scenario
 echo
 echo "Done. You may now run the Docker image using this command:"
-echo "$ docker run -name ${NAME}"
+echo "$ docker run ${NAME}"
 echo
 echo "Example of starting the container using HTTP port 8081 mapping and locally mounted data volume:"
 echo "$ docker run -ti --name ${NAME} -p 8081:8081 -v $MULE_BASE/apps:/opt/mule/apps -v $MULE_BASE/logs:/opt/mule/logs ${NAME}"

@@ -1,6 +1,8 @@
 # Docker Image packaging for [Mule](https://www.mulesoft.com/platform/mule) EE runtime engine with license
 
+
 ##### Note: A valid Mule EE license file (license.lic) is required. Do not attempt to start the container without providing a license file. Before building the image, Put your license file (license.lic) in the resources folder (see Step 2).
+
 
 ## Getting started
 ###### Step 1: Obtain Docker image files
@@ -8,14 +10,17 @@
 `$ git clone https://github.com/rajprins/mule-docker.git`
 * From the location where you cloned the GitHub repo files, navigate to folder `mule4/EE-license/`
 
+
 ###### Step 2: Provide a license file
 * A valid Mule Enterprise Edition license file is required. Do not attempt to start the container without providing a license file
 * Put your license file (license.lic) in the resources folder
+
 
 ###### Step 3: Build a Docker base image
 * Navigate to the folder that contains the cloned Docker file
 * Build and tag the Docker base image from current location:  
 `$ docker build --tag="mule4-ee" .`
+
 
 ###### Step 4: Run the Docker image
 * Run the image (with port 8081 mapped and locally mounted data volume) using this command:  
@@ -32,6 +37,7 @@ For deploying applications and accessing log files, these mount points are mappe
 |/opt/mule/apps     | Mule applications deployment directory | ~/mule/apps          |
 |/opt/mule/domains  | Mule Domains deployment directory      | ~/mule/domains       |
 |/opt/mule/logs     | Logs directory                         | ~/mule/logs          |
+|/opt/mule/conf     | Mule runtime configuration files       | ~/mule/conf          |
 
 
 #### Exposed ports

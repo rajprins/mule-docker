@@ -14,9 +14,9 @@ echo
 
 
 #----- Image name
-read -p "> What name do you want to use for this container image (RETURN=mule4-trial) : " NAME
+read -p "> What name do you want to use for this container image (RETURN=mule4-ce) : " NAME
 if [[ -z $NAME ]] ; then
-  NAME="mule4-trial"  
+  NAME="mule4-ce"  
 fi
 
 #----- Mule runtime version, currently 4.4.0

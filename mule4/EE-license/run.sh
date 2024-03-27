@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+#----- Nice, but useless banner
 echo
 tput rev
 echo "┌──────────────────────────────────────────────────────────────────────────┐"
@@ -8,32 +10,40 @@ echo "│ /o o\                                                                 
 echo "└──────────────────────────────────────────────────────────────────────────┘"
 tput sgr0
 
+
+#----- Ask for container instance name
 echo
 echo -n "Enter a name for the container (default: mule4-ee): "
 read NAME
-if [[ -z $NAME ]] ; then
+if [[ -z ${NAME} ]] ; then
    NAME="mule4-ee"
 fi
-echo "Container name: $NAME"
 
+
+#----- HTTP connector's default port is 8081. To which local port should we map this?
 echo
 echo -n "Enter a port number for the default HTTP connector port (default: 8081): "
 read PORT
 if [[ -z $PORT ]] ; then
    PORT="8081"
 fi
-echo "Port: $PORT"
 
+
+#----- Ask for output mode
 echo
-echo -n "Do you wish to run with (T)erminal output enabled or in (D)etached mode? (Default: T): "
+echo -n "Run container with (T)erminal output enabled or in (D)etached mode? (Default: T): "
 read MODE
 if [[ -z $MODE ]] ; then
    MODE="t"
 fi
 
-MULE_HOME="/opt/mule"
-MULE_BASE="$HOME/mule/$NAME"
 
+#----- Environment variables
+MULE_HOME="/opt/mule"
+MULE_BASE="${HOME}/mule/${NAME}"
+
+
+#----- Let's do it...
 if [ $MODE = "T" ] || [ $MODE = "t" ] ; then
    echo "Starting container ${NAME} with terminal output enabled. Data volumes mounted on ${MULE_BASE}."
    docker run -ti --name ${NAME} \

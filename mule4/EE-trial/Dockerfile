@@ -23,7 +23,7 @@ RUN         wget https://s3.amazonaws.com/new-mule-artifacts/mule-ee-distributio
 
 
 # Define mount points
-VOLUME      ["/opt/mule/logs", "/opt/mule/apps", "/opt/mule/domains"]
+VOLUME      ["/opt/mule/logs", "/opt/mule/apps", "/opt/mule/domains", "/opt/mule/conf"]
 
 
 # Expose the necessary port ranges as required by the Mule Apps
