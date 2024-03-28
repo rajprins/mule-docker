@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+#----- Nice, but useless banner
+clear
 echo
 tput rev
 echo "┌──────────────────────────────────────────────────────────────────────────┐"

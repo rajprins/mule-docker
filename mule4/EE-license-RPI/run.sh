@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+#----- Nice, but useless banner
+clear
 echo
 tput rev
 echo "┌──────────────────────────────────────────────────────────────────────────┐"
@@ -8,6 +11,8 @@ echo "│ /   \                                                                 
 echo "└──────────────────────────────────────────────────────────────────────────┘"
 tput sgr0
 
+
+#----- Ask for container instance name
 echo
 echo -n "Enter a name for the container (default: mule4-ee-rpi): "
 read NAME
