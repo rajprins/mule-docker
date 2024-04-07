@@ -44,26 +44,32 @@ else
 fi
 
 
-#----- Environment variables
-MULE_HOME="/opt/mule"
-MULE_BASE="${HOME}/mule/${NAME}"
+#----- Location for mounting volume(s)
+MULE_DIR="${HOME}/mule/${NAME}"
+if [[ -d ${MULE_DIR} ]] ; then
+   sudo rm -rf ${MULE_DIR}
+fi
 
 
 #----- Let's do it...
 if [ $MODE = "T" ] || [ $MODE = "t" ] ; then
    echo
-   echo "Starting container ${NAME} with terminal output enabled. Data volumes mounted on ${MULE_BASE}."
+   echo "Starting container ${NAME} with terminal output enabled. Data volumes mounted on ${MULE_DIR}."
    docker run -ti --name ${NAME} \
       -p ${PORT}:8081 \
-      -v ${MULE_BASE}/apps:${MULE_HOME}/apps \
-      -v ${MULE_BASE}/logs:${MULE_HOME}/logs \
+      -v ${MULE_DIR}/logs:/opt/mule/logs \
+      -v ${mule_DIR}/apps:/opt/mule/apps \
+      -v ${mule_DIR}/domains:/opt/mule/domains \
+      -v ${mule_DIR}/conf:/opt/mule/conf \
       ${NAME}
 elif [ $MODE = "D" ] || [ $MODE = "d" ] ; then
    echo
-   echo "Starting container ${NAME} in detached mode. Data volumes mounted on ${MULE_BASE}."
+   echo "Starting container ${NAME} in detached mode. Data volumes mounted on ${MULE_DIR}."
    docker run -d --name ${NAME} \
       -p ${PORT}:8081 \
-      -v ${MULE_BASE}/apps:${MULE_HOME}/apps \
-      -v ${MULE_BASE}/logs:${MULE_HOME}/logs \
+      -v ${MULE_DIR}/logs:/opt/mule/logs \
+      -v ${mule_DIR}/apps:/opt/mule/apps \
+      -v ${mule_DIR}/domains:/opt/mule/domains \
+      -v ${mule_DIR}/conf:/opt/mule/conf \
       ${NAME}
 fi

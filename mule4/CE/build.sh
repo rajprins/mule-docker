@@ -22,7 +22,7 @@ fi
 #----- Mule runtime version, currently 4.4.0
 read -p "> What runtime version do you want to use (RETURN=4.4.0) : " RUNTIME_VERSION
 if [[ -z $RUNTIME_VERSION ]] ; then
-  RUNTIME_VERSION="4.4.0"
+  RUNTIME_VERSION="4.6.0"
 fi
 
 
